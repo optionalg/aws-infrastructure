@@ -50,6 +50,19 @@ Suffice to say, I strongly urge you to do your own investigation into making you
 
 ## Usage
 
+### Demo
+
+Here's a screencast I recorded, where I:
+1. Download [infrastructure.cloudformation.yaml](./infrastructure.cloudformation.yaml) from GitHub.
+1. Create an S3 bucket and upload the template.
+1. Use CloudFormation to deploy the template.
+1. Launch an EC2 instance in the new infrastructure.
+1. Deploy a test web server onto the new EC2 instance, and show that it works.
+1. Tear down the web server.
+1. Tear down all the new infrastructure.
+
+[![Demonstration](http://img.youtube.com/vi/T1WUev4-YKM/0.jpg)](http://www.youtube.com/watch?v=T1WUev4-YKM)
+
 ### Deploying the infrastructure
 
 1. [Create an AWS account](https://aws.amazon.com/) and log in.
@@ -121,6 +134,7 @@ Congratulations! You just deployed a web server to AWS!
 1. Select your EC2 instance.
 1. Select "Actions / Instance State / Terminate".
 1. Select "Yes, Terminate" to confirm.
+1. Open the list of Security Groups, and delete the Security Group you created above.
 
 ### Deleting all this infrastructure from AWS
 
@@ -132,6 +146,12 @@ This will delete all the resources created by the CloudFormation template above.
 4. Select "Actions / Delete Stack".
 
 The deletion could take a long time (even longer than the creation time), and could fail if it ends up taking too long. I urge you to contact AWS support if you have problems deleting the stack.
+
+## Issues
+
+### CloudFormation can't delete the VPC!
+
+This most likely means you left something behind in the VPC. Are you *sure* you deleted all the Security Groups you created?
 
 ## Very important note about security
 
