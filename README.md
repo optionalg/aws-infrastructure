@@ -180,3 +180,7 @@ At the time of writing this, the resources provided by this project cost fractio
 AWS is affordable, fun, and generally a safe place to learn about cloud computing. It's currently the only cloud provider I recommend to friends and colleagues.
 
 Don't get stuck just reading about it. Dive in, try it out, learn from your mistakes, and have fun!
+
+## License
+
+This work is licenced under the MIT License. There are no restrictions on how you may reuse it.
