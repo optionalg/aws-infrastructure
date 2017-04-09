@@ -1,13 +1,62 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Parameters:
+  
+  VpcIpv4Cidr:
+    Type: String
+    Default: 10.0.0.0/22
+    Description: An IPv4 CIDR block of 10.0.0.0/22 will give you a VPC with range 10.0.0.0 - 10.0.3.255.
+
   AvailabilityZone1:
     Type: AWS::EC2::AvailabilityZone::Name
     Description: First preferred availability zone.
 
+  AvailabilityZone1Ipv4Cidr:
+    Type: String
+    Default: 10.0.0.0/24
+    Description: An IPv4 CIDR block of 10.0.0.0/24 will give you a subnet with range 10.0.0.0 - 10.0.0.255.
+
   AvailabilityZone2:
     Type: AWS::EC2::AvailabilityZone::Name
     Description: Second preferred availability zone.
+
+  AvailabilityZone2Ipv4Cidr:
+    Type: String
+    Default: 10.0.1.0/24
+    Description: An IPv4 CIDR block of 10.0.1.0/24 will give you a subnet with range 10.0.1.0 - 10.0.1.255.
+
+Metadata:
+
+  AWS::CloudFormation::Interface:
+
+    ParameterGroups:
+      - Label:
+          default: VPC
+        Parameters:
+          - VpcIpv4Cidr
+      - Label:
+          default: Availability Zone 1
+        Parameters:
+          - AvailabilityZone1
+          - AvailabilityZone1Ipv4Cidr
+      - Label:
+          default: Availability Zone 2
+        Parameters:
+          - AvailabilityZone2
+          - AvailabilityZone2Ipv4Cidr
+
+    ParameterLabels:
+      VpcIpv4Cidr:
+        default: VPC CIDR block
+      AvailabilityZone1:
+        default: Availabilty Zone
+      AvailabilityZone1Ipv4Cidr:
+        default: IPv4 CIDR
+      AvailabilityZone2:
+        default: Availabilty Zone
+      AvailabilityZone2Ipv4Cidr:
+        default: IPv4 CIDR
+
 
 Resources:
 
@@ -18,9 +67,8 @@ Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      # A CIDR block of 10.0.0.0/22 will give you the IP range
-      # 10.0.0.0 - 10.0.3.255
-      CidrBlock: 10.0.0.0/22
+      CidrBlock:
+        Ref: VpcIpv4Cidr
       Tags:
         - Key: Name
           Value:
@@ -29,6 +77,7 @@ Resources:
               -
                 - vpc
                 - !Ref AWS::StackName
+
 
   #
   # INTERNET GATEWAY
@@ -54,16 +103,18 @@ Resources:
       VpcId:
         Ref: VPC
 
+
   #
   # SUBNETS
   #
 
-  PublicSubnet1:
+  Subnet1:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone:
         Ref: AvailabilityZone1
-      CidrBlock: 10.0.0.0/24
+      CidrBlock:
+        Ref: AvailabilityZone1Ipv4Cidr
       MapPublicIpOnLaunch: True
       Tags:
         - Key: Name
@@ -76,12 +127,13 @@ Resources:
       VpcId:
         Ref: VPC
 
-  PublicSubnet2:
+  Subnet2:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone:
         Ref: AvailabilityZone2
-      CidrBlock: 10.0.1.0/24
+      CidrBlock:
+        Ref: AvailabilityZone2Ipv4Cidr
       MapPublicIpOnLaunch: True
       Tags:
         - Key: Name
@@ -94,65 +146,12 @@ Resources:
       VpcId:
         Ref: VPC
 
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone:
-        Ref: AvailabilityZone1
-      CidrBlock: 10.0.2.0/24
-      Tags:
-        - Key: Name
-          Value:
-            Fn::Join:
-              - "-"
-              -
-                - private-subnet-1
-                - !Ref AWS::StackName
-      VpcId:
-        Ref: VPC
-
-  PrivateSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone:
-        Ref: AvailabilityZone2
-      CidrBlock: 10.0.3.0/24
-      Tags:
-        - Key: Name
-          Value:
-            Fn::Join:
-              - "-"
-              -
-                - private-subnet-2
-                - !Ref AWS::StackName
-      VpcId:
-        Ref: VPC
-
-  #
-  # NAT GATEWAY
-  #
-
-  NATElasticIP:
-    Type: AWS::EC2::EIP
-    DependsOn: VPC
-    Properties:
-      Domain: vpc
-
-  NATGateway:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId:
-        Fn::GetAtt:
-          - NATElasticIP
-          - AllocationId
-      SubnetId:
-        Ref: PublicSubnet1
 
   #
   # ROUTE TABLES
   #
 
-  PublicRouteTable:
+  RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId:
@@ -166,74 +165,37 @@ Resources:
                 - rt-public
                 - !Ref AWS::StackName
 
-  PrivateRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId:
-        Ref: VPC
-      Tags:
-        - Key: Name
-          Value:
-            Fn::Join:
-              - "-"
-              -
-                - rt-private
-                - !Ref AWS::StackName
 
   #
   # EGRESS ROUTES
   #
 
-  PublicSubnetRouteToInternetGateway:
+  SubnetRouteToInternetGateway:
     Type: AWS::EC2::Route
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
         Ref: InternetGateway
       RouteTableId:
-        Ref: PublicRouteTable
+        Ref: RouteTable
 
-  PrivateSubnetRouteToNATGateway:
-    Type: AWS::EC2::Route
-    Properties:
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId:
-        Ref: NATGateway
-      RouteTableId:
-        Ref: PrivateRouteTable
 
   #
   # SUBNET ROUTING
   #
 
-  PublicSubnet1RouteTableAssociation:
+  Subnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: PublicRouteTable
+        Ref: RouteTable
       SubnetId:
-        Ref: PublicSubnet1
+        Ref: Subnet1
 
-  PublicSubnet2RouteTableAssociation:
+  Subnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: PublicRouteTable
+        Ref: RouteTable
       SubnetId:
-        Ref: PublicSubnet2
-
-  PrivateSubnet1RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId:
-        Ref: PrivateRouteTable
-      SubnetId:
-        Ref: PrivateSubnet1
-
-  PrivateSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId:
-        Ref: PrivateRouteTable
-      SubnetId:
-        Ref: PrivateSubnet2
+        Ref: Subnet2
