@@ -9,6 +9,8 @@
 * Two subnets (across two availability zones)
 * Subnet routing: EC2 instances in the public subnets will have full Internet connectivity
 
+A [deployment walkthrough](./wiki/Infrastructure-deployment-walkthrough) is in the [wiki](./wiki).
+
 If you want to deploy private subnets in additional to all of the above then follow up with [private-subnets.cloudformation.yaml](./private-subnets.cloudformation.yaml) to get:
 
   * Two NAT gateways (across two availability zones)
