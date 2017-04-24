@@ -2,6 +2,8 @@
 
 ## Introduction
 
+### infrastructure.cloudformation.yaml
+
 [infrastructure.cloudformation.yaml](./infrastructure.cloudformation.yaml) is an AWS CloudFormation template which will provide:
 
 * A Virtual Private Cloud (VPC)
@@ -9,11 +11,17 @@
 * Two subnets (across two availability zones)
 * Subnet routing: EC2 instances in the public subnets will have full Internet connectivity
 
-If you want to deploy private subnets in additional to all of the above then follow up with [private-subnets.cloudformation.yaml](./private-subnets.cloudformation.yaml) to get:
+### infrastructure.private-subnets.cloudformation.yaml
+
+If you want to deploy private subnets in additional to all of the above then follow up with [infrastructure.private-subnets.cloudformation.yaml](./infrastructure.private-subnets.cloudformation.yaml) to get:
 
   * Two NAT gateways (across two availability zones)
   * Two private subnets (across two availability zones)
   * Subnet routing: EC2 instances in the private subnets will have outgoing Internet connectivity, but will not be reachable from the Internet (unless you put them behind a bastion, Elastic Load Balancer, or some other router)
+
+### rds.aurora.cloudformation.yaml
+
+[rds.aurora.cloudformation.yaml](rds.aurora.cloudformation.yaml) deploys a private Aurora cluster across two availability zones (one instance in each).
 
 ## Examples and walkthroughs
 
